@@ -1,0 +1,13 @@
+,age,prior_programming_experience,weeks_in_course,hours_spent_learning_per_week,practice_problems_solved,projects_completed,tutorial_videos_watched,uses_kaggle,participates_in_discussion_forums,debugging_sessions_per_week,self_reported_confidence_python,final_exam_score
+age,1.0,0.01,0.03,-0.03,0.01,-0.01,0.0,-0.0,0.04,-0.05,-0.0,-0.0
+prior_programming_experience,0.01,1.0,0.04,0.01,-0.04,0.04,-0.04,0.0,-0.02,-0.0,-0.0,0.45
+weeks_in_course,0.03,0.04,1.0,-0.01,0.01,0.01,0.01,-0.02,-0.0,-0.02,0.01,0.01
+hours_spent_learning_per_week,-0.03,0.01,-0.01,1.0,-0.0,0.0,0.01,-0.04,0.03,0.0,0.02,0.38
+practice_problems_solved,0.01,-0.04,0.01,-0.0,1.0,-0.03,0.0,-0.0,-0.02,0.0,-0.01,0.09
+projects_completed,-0.01,0.04,0.01,0.0,-0.03,1.0,-0.0,0.03,-0.04,-0.02,0.02,0.36
+tutorial_videos_watched,0.0,-0.04,0.01,0.01,0.0,-0.0,1.0,0.0,-0.02,-0.01,0.05,0.03
+uses_kaggle,-0.0,0.0,-0.02,-0.04,-0.0,0.03,0.0,1.0,0.02,0.02,-0.01,0.11
+participates_in_discussion_forums,0.04,-0.02,-0.0,0.03,-0.02,-0.04,-0.02,0.02,1.0,-0.01,0.03,0.08
+debugging_sessions_per_week,-0.05,-0.0,-0.02,0.0,0.0,-0.02,-0.01,0.02,-0.01,1.0,0.03,0.12
+self_reported_confidence_python,-0.0,-0.0,0.01,0.02,-0.01,0.02,0.05,-0.01,0.03,0.03,1.0,0.29
+final_exam_score,-0.0,0.45,0.01,0.38,0.09,0.36,0.03,0.11,0.08,0.12,0.29,1.0
