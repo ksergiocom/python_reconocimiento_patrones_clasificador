@@ -147,13 +147,11 @@ grid_search = sklearn.model_selection.GridSearchCV(
 
 grid_search.fit(X_train, y_train)
 
-print("Mejores parámetros:", grid_search.best_params_)
-print("Mejor accuracy CV:", grid_search.best_score_)
+
 
 best_svc = grid_search.best_estimator_
 
 accuracy = best_svc.score(X_test, y_test)
-print("Accuracy SVC:", accuracy)
 
 ##############################################
 # knn ########################################
@@ -180,13 +178,8 @@ grid_knn = sklearn.model_selection.GridSearchCV(
 
 grid_knn.fit(X_train, y_train)
 
-print("Mejores parámetros KNN:", grid_knn.best_params_)
-print("Mejor accuracy CV KNN:", grid_knn.best_score_)
 
 best_knn = grid_knn.best_estimator_
-print("Accuracy KNN:", best_knn.score(X_test, y_test))
-
-
 
 
 """
@@ -224,8 +217,8 @@ for params in svc_results["params"]:
     metrics_svc.append({
         "accuracy": sklearn.metrics.accuracy_score(y_test, y_pred),
         "error": 1 - sklearn.metrics.accuracy_score(y_test, y_pred),
-        "precision": sklearn.metrics.precision_score(y_test, y_pred, zero_division=0),
-        "recall": sklearn.metrics.recall_score(y_test, y_pred, zero_division=0),
+        "precision": sklearn.metrics.precision_score(y_test, y_pred, zero_division=0, average="macro"),
+        "recall": sklearn.metrics.recall_score(y_test, y_pred, zero_division=0, average="macro"),
     })
 
 metrics_svc_df = pandas.DataFrame(metrics_svc)
@@ -262,11 +255,47 @@ for params in knn_results["params"]:
     metrics_knn.append({
         "accuracy": sklearn.metrics.accuracy_score(y_test, y_pred),
         "error": 1 - sklearn.metrics.accuracy_score(y_test, y_pred),
-        "precision": sklearn.metrics.precision_score(y_test, y_pred, zero_division=0),
-        "recall": sklearn.metrics.recall_score(y_test, y_pred, zero_division=0),
+        "precision": sklearn.metrics.precision_score(y_test, y_pred, zero_division=0, average="macro"),
+        "recall": sklearn.metrics.recall_score(y_test, y_pred, zero_division=0, average="macro"),
     })
 
 metrics_knn_df = pandas.DataFrame(metrics_knn)
 knn_results_with_metrics = pandas.concat([knn_results.reset_index(drop=True), metrics_knn_df], axis=1)
 knn_results_with_metrics.to_csv("knn_all_models_metrics.csv", index=False)
 print("CSV 'knn_all_models_metrics.csv' generado correctamente con todas las métricas sobre test.")
+
+
+"""
+	Presentación de los resultados
+"""
+
+print("Mejores parámetros:", grid_search.best_params_)
+print("Mejor accuracy CV:", grid_search.best_score_)
+print("Accuracy SVC:", accuracy)
+
+print("Mejores parámetros KNN:", grid_knn.best_params_)
+print("Mejor accuracy CV KNN:", grid_knn.best_score_)
+print("Accuracy KNN:", best_knn.score(X_test, y_test))
+
+
+# Predicciones de los mejores modelos
+y_pred_svc = best_svc.predict(X_test)
+y_pred_knn = best_knn.predict(X_test)
+
+# Matriz de confusión SVC
+cm_svc = sklearn.metrics.confusion_matrix(y_test, y_pred_svc)
+print("Matriz de confusión SVC:")
+print(cm_svc)
+
+# Reporte de métricas SVC
+print("\nReporte de clasificación SVC:")
+print(sklearn.metrics.classification_report(y_test, y_pred_svc, zero_division=0))
+
+# Matriz de confusión KNN
+cm_knn = sklearn.metrics.confusion_matrix(y_test, y_pred_knn)
+print("Matriz de confusión KNN:")
+print(cm_knn)
+
+# Reporte de métricas KNN
+print("\nReporte de clasificación KNN:")
+print(sklearn.metrics.classification_report(y_test, y_pred_knn, zero_division=0))
