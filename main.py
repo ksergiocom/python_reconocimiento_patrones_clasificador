@@ -122,11 +122,151 @@ y = data["final_exam_score"]
 
 X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.3, random_state=42)
 
-svc = sklearn.svm.SVC(random_state=42, probability=True)
-svc.fit(X_train, y_train)
 
-accuracy = svc.score(X_test, y_test)
+##############################################
+# SVC ########################################
+##############################################
+
+svc = sklearn.svm.SVC(random_state=42)
+
+param_grid = {
+    "C": [0.1, 1, 10, 100],
+    "kernel": ["linear", "rbf"],
+    "gamma": ["scale", "auto", 0.01, 0.1, 1]
+}
+
+
+grid_search = sklearn.model_selection.GridSearchCV(
+    estimator=svc,
+    param_grid=param_grid,
+    scoring="accuracy",
+    cv=5,           
+    n_jobs=-1,      
+    verbose=2
+)
+
+grid_search.fit(X_train, y_train)
+
+print("Mejores parámetros:", grid_search.best_params_)
+print("Mejor accuracy CV:", grid_search.best_score_)
+
+best_svc = grid_search.best_estimator_
+
+accuracy = best_svc.score(X_test, y_test)
 print("Accuracy SVC:", accuracy)
 
-# Se deberá utilizar como variable de salida al menos obligatoriamente la columna: 'final_exam_score
-# Es conveniente probar otros clasificadores sobre otras columna
+##############################################
+# knn ########################################
+##############################################
+
+knn = sklearn.neighbors.KNeighborsClassifier()
+
+param_grid_knn = {
+    "n_neighbors": [3, 5, 7, 9, 11],
+    "weights": ["uniform", "distance"],
+    "metric": ["euclidean", "manhattan"]
+}
+
+
+
+grid_knn = sklearn.model_selection.GridSearchCV(
+    knn,
+    param_grid_knn,
+    scoring="accuracy",
+    cv=5,
+    n_jobs=-1,
+    verbose=2
+)
+
+grid_knn.fit(X_train, y_train)
+
+print("Mejores parámetros KNN:", grid_knn.best_params_)
+print("Mejor accuracy CV KNN:", grid_knn.best_score_)
+
+best_knn = grid_knn.best_estimator_
+print("Accuracy KNN:", best_knn.score(X_test, y_test))
+
+
+
+
+"""
+	Generando un reporte de todos los modelos
+	calculados con grid search
+"""
+
+
+##############################################
+# SVC ########################################
+##############################################
+
+svc_results = pandas.DataFrame(grid_search.cv_results_)
+
+# Nos quedamos con lo relevante
+svc_results = svc_results[
+    [
+        "params",
+        "mean_test_score",
+        "std_test_score",
+        "rank_test_score"
+    ]
+]
+
+# Lista para guardar métricas en test
+metrics_svc = []
+
+for params in svc_results["params"]:
+    model = sklearn.base.clone(grid_search.estimator)
+    model.set_params(**params)
+    model.fit(X_train, y_train)
+    
+    y_pred = model.predict(X_test)
+    
+    metrics_svc.append({
+        "accuracy": sklearn.metrics.accuracy_score(y_test, y_pred),
+        "error": 1 - sklearn.metrics.accuracy_score(y_test, y_pred),
+        "precision": sklearn.metrics.precision_score(y_test, y_pred, zero_division=0),
+        "recall": sklearn.metrics.recall_score(y_test, y_pred, zero_division=0),
+    })
+
+metrics_svc_df = pandas.DataFrame(metrics_svc)
+svc_results_with_metrics = pandas.concat([svc_results.reset_index(drop=True), metrics_svc_df], axis=1)
+svc_results_with_metrics.to_csv("svc_all_models_metrics.csv", index=False)
+print("CSV 'svc_all_models_metrics.csv' generado correctamente con todas las métricas sobre test.")
+
+
+##############################################
+# knn ########################################
+##############################################
+
+knn_results = pandas.DataFrame(grid_knn.cv_results_)
+
+# Nos quedamos con lo relevante
+knn_results = knn_results[
+    [
+        "params",
+        "mean_test_score",
+        "std_test_score",
+        "rank_test_score"
+    ]
+]
+
+metrics_knn = []
+
+for params in knn_results["params"]:
+    model = sklearn.base.clone(grid_knn.estimator)
+    model.set_params(**params)
+    model.fit(X_train, y_train)
+    
+    y_pred = model.predict(X_test)
+    
+    metrics_knn.append({
+        "accuracy": sklearn.metrics.accuracy_score(y_test, y_pred),
+        "error": 1 - sklearn.metrics.accuracy_score(y_test, y_pred),
+        "precision": sklearn.metrics.precision_score(y_test, y_pred, zero_division=0),
+        "recall": sklearn.metrics.recall_score(y_test, y_pred, zero_division=0),
+    })
+
+metrics_knn_df = pandas.DataFrame(metrics_knn)
+knn_results_with_metrics = pandas.concat([knn_results.reset_index(drop=True), metrics_knn_df], axis=1)
+knn_results_with_metrics.to_csv("knn_all_models_metrics.csv", index=False)
+print("CSV 'knn_all_models_metrics.csv' generado correctamente con todas las métricas sobre test.")
